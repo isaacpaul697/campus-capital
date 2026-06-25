@@ -28,11 +28,14 @@ export function CityExplorer({
   center,
   zoom,
   cityLabel,
+  osm = false,
 }: {
   devs: DevView[];
   center: [number, number];
   zoom: number;
   cityLabel?: string;
+  /** OSM areas carry no permit issuance dates, so the date filter/column is hidden. */
+  osm?: boolean;
 }) {
   const [active, setActive] = useState<Set<PropertyType>>(new Set(PROPERTY_TYPES));
   const [datePreset, setDatePreset] = useState<string>("all");
@@ -101,7 +104,9 @@ export function CityExplorer({
           })}
         </div>
         <div className="flex flex-wrap gap-4">
-          <PresetRow label="Issued" presets={DATE_PRESETS} value={datePreset} onChange={setDatePreset} />
+          {!osm && (
+            <PresetRow label="Issued" presets={DATE_PRESETS} value={datePreset} onChange={setDatePreset} />
+          )}
           <PresetRow label="Est. value" presets={VALUE_PRESETS} value={valuePreset} onChange={setValuePreset} />
           <span className="ml-auto text-xs text-muted self-center num">
             {filtered.length.toLocaleString()} of {devs.length.toLocaleString()} developments
@@ -127,7 +132,13 @@ export function CityExplorer({
             <div className="text-xs text-muted mt-0.5 line-clamp-1">{d.description || d.rawType}</div>
             <div className="flex items-center justify-between mt-2.5">
               <span className="font-display text-[17px] font-semibold text-ink num">{fmtCompactUSD(d.cost.value)}</span>
-              <span className="text-xs text-muted num">{fmtDate(d.issueDate)}</span>
+              {osm ? (
+                d.issueDate && (
+                  <span className="text-xs text-muted-2 num">Built ~{d.issueDate.slice(0, 4)}</span>
+                )
+              ) : (
+                <span className="text-xs text-muted num">{fmtDate(d.issueDate)}</span>
+              )}
             </div>
             {d.developer && <div className="text-[11px] text-muted-2 mt-1 truncate">{d.developer}</div>}
           </Link>

@@ -110,6 +110,7 @@ export function CityView({ bundle }: { bundle: CityBundle }) {
             center={[city.lat, city.lng]}
             zoom={city.zoom}
             cityLabel={city.state ? `${city.name}, ${city.state}` : city.name}
+            osm={osm}
           />
         </div>
         <div className="flex flex-col gap-4">

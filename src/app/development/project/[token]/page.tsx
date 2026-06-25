@@ -23,6 +23,8 @@ interface Resolved {
   backHref: string;
   /** Developer links only resolve for registry/permit cities. */
   developerCity: string | null;
+  /** OSM-backed records carry no permit issuance date (start year at best). */
+  osm: boolean;
 }
 
 /** Resolve a development token to either a permit-portal record or an OSM element. */
@@ -40,6 +42,7 @@ async function resolve(id: string): Promise<Resolved | null> {
       cityState: bundle.city.state,
       backHref: `/development/city/${cityId}`,
       developerCity: cityId,
+      osm: false,
     };
   }
 
@@ -57,6 +60,7 @@ async function resolve(id: string): Promise<Resolved | null> {
     cityState: registry ? registry.state : "",
     backHref: registry ? `/development/city/${cityId}` : `/development/area?q=${encodeURIComponent(query)}`,
     developerCity: null,
+    osm: true,
   };
 }
 
@@ -79,7 +83,7 @@ export default async function DevelopmentPage({ params }: { params: Promise<{ to
     );
   }
 
-  const { view, cityName, cityState, backHref, developerCity } = resolved;
+  const { view, cityName, cityState, backHref, developerCity, osm } = resolved;
   const nearby = await fetchLandUse(view.lat, view.lng, 800);
   const place = cityState ? `${cityName}, ${cityState}` : cityName;
 
@@ -127,7 +131,9 @@ export default async function DevelopmentPage({ params }: { params: Promise<{ to
             <div className="text-xs text-muted num pt-1">
               {view.units != null && <div>Units: {fmtNum(view.units)}</div>}
               {view.sqft != null && <div>Floor area: {fmtNum(view.sqft)} sqft</div>}
-              <div>Issued: {fmtDate(view.issueDate)}</div>
+              {osm
+                ? view.issueDate && <div>Built: ~{view.issueDate.slice(0, 4)} (OSM)</div>
+                : <div>Permit issued: {fmtDate(view.issueDate)}</div>}
               {view.completeDate && <div>Completed: {fmtDate(view.completeDate)}</div>}
             </div>
           </Card>
