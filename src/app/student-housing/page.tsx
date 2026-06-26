@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useScoredMarkets } from "@/lib/compute";
+import { useAllApartments } from "@/lib/live/allApartments";
 import { CampusMap } from "@/components/CampusMap";
 import { CampusHero } from "@/components/CampusHero";
-import { Card, Stat, LabelChip, SectionTitle, Logo, Spinner, StateBlock } from "@/components/ui";
+import { Card, Stat, LabelChip, SectionTitle, Logo, Spinner, StateBlock, ProvenanceTag } from "@/components/ui";
 import { fmtNum } from "@/lib/scoring";
 import { timeAgo } from "@/lib/live/useMarketDetail";
 
@@ -36,6 +37,7 @@ const STEPS = [
 
 export default function Home() {
   const { scored, loading, error } = useScoredMarkets();
+  const { byMarket, loading: aptLoading } = useAllApartments();
   const [feed, setFeed] = useState<FeedArticle[]>([]);
   const [feedLoading, setFeedLoading] = useState(true);
 
@@ -45,6 +47,9 @@ export default function Home() {
       if (raw) {
         const entry = JSON.parse(raw);
         if (Date.now() - entry.ts < CACHE_TTL && entry.data?.length > 0) {
+          // Hydrating from a sessionStorage cache is reading external state into
+          // React, exactly what this rule permits; it is not a render-cascade.
+          // eslint-disable-next-line react-hooks/set-state-in-effect
           setFeed(entry.data);
           setFeedLoading(false);
           return;
@@ -67,6 +72,16 @@ export default function Home() {
   const avg = scored.length ? Math.round(scored.reduce((s, m) => s + m.score.score, 0) / scored.length) : 0;
   const headlines = scored.reduce((s, m) => s + m.market.newsCount, 0);
   const enrolled = scored.reduce((s, m) => s + (m.market.enrollment ?? 0), 0);
+
+  // Coverage scale, the way a data-analytics desk frames its footprint: how many
+  // named buildings, beds, and units the tool is currently tracking near campus.
+  // Property counts are live OSM building records; bed/unit figures are modeled
+  // from those footprints (labeled "estimated"), never invented.
+  const allApts = Object.values(byMarket);
+  const propertiesTracked = allApts.reduce((s, list) => s + list.length, 0);
+  const bedsTracked = allApts.reduce((s, list) => s + list.reduce((b, a) => b + a.estBeds, 0), 0);
+  const unitsTracked = allApts.reduce((s, list) => s + list.reduce((u, a) => u + a.estUnits, 0), 0);
+  const marketsCovered = allApts.filter((list) => list.length > 0).length;
 
   return (
     <div className="flex flex-col gap-8 cc-fade">
@@ -105,14 +120,14 @@ export default function Home() {
           </p>
 
           <div className="flex flex-wrap gap-3 mt-7">
-            <Link href="/map" className="px-5 h-11 inline-flex items-center rounded-full text-sm font-semibold text-white shadow-[var(--shadow)]"
+            <Link href="/student-housing/map" className="px-5 h-11 inline-flex items-center rounded-full text-sm font-semibold text-white shadow-[var(--shadow)]"
               style={{ background: "var(--gold)" }}>
               Open the live map
             </Link>
-            <Link href="/markets" className="px-5 h-11 inline-flex items-center rounded-full text-sm font-semibold text-ink bg-surface-2 border border-line hover:border-line-strong transition-colors">
+            <Link href="/student-housing/markets" className="px-5 h-11 inline-flex items-center rounded-full text-sm font-semibold text-ink bg-surface-2 border border-line hover:border-line-strong transition-colors">
               Browse all markets
             </Link>
-            <Link href="/about" className="px-5 h-11 inline-flex items-center rounded-full text-sm font-semibold text-ink-soft hover:text-ink transition-colors">
+            <Link href="/student-housing/about" className="px-5 h-11 inline-flex items-center rounded-full text-sm font-semibold text-ink-soft hover:text-ink transition-colors">
               How it works →
             </Link>
           </div>
@@ -143,6 +158,39 @@ export default function Home() {
         <Stat label="Live headlines (now)" value={loading ? "n/a" : fmtNum(headlines)} delta="across tracked markets" tone="info" />
         <Stat label="Students in coverage" value={loading ? "n/a" : fmtNum(enrolled)} delta="College Scorecard" />
       </div>
+
+      {/* ── Coverage scale ─────────────────────────────────── */}
+      <Card pad={false} className="overflow-hidden">
+        <div className="flex items-center justify-between gap-3 p-5 pb-3 flex-wrap">
+          <SectionTitle sub="The near-campus supply this desk is actively tracking">
+            Coverage at a glance
+          </SectionTitle>
+          <ProvenanceTag p="estimated" />
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-line border-t border-line">
+          {[
+            { label: "Markets with mapped supply", value: marketsCovered, suffix: "campuses", live: true },
+            { label: "Properties tracked", value: propertiesTracked, suffix: "named buildings (OSM)", live: true },
+            { label: "Beds tracked", value: bedsTracked, suffix: "est. leasable beds", live: false },
+            { label: "Units tracked", value: unitsTracked, suffix: "est. dwelling units", live: false },
+          ].map((c) => (
+            <div key={c.label} className="p-5">
+              <div className="font-display text-[28px] font-semibold text-ink num leading-none">
+                {aptLoading && propertiesTracked === 0 ? "n/a" : fmtNum(c.value)}
+              </div>
+              <div className="text-[13px] font-medium text-ink-soft mt-1.5">{c.label}</div>
+              <div className="text-[11px] text-muted-2 mt-0.5">
+                {c.live ? "live" : "estimated"} · {c.suffix}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="px-5 py-3 border-t border-line text-[11px] text-muted">
+          Property counts are live OpenStreetMap building records within ~3 mi of each campus. Bed and unit
+          figures are modeled from each building&apos;s footprint and floor count (labeled estimated), since no
+          free national feed publishes per-property bed counts. Nothing here is fabricated.
+        </div>
+      </Card>
 
       {/* ── Map + feed ─────────────────────────────────────── */}
       <div className="grid grid-cols-1 xl:grid-cols-[1.6fr_1fr] gap-6">
@@ -183,7 +231,7 @@ export default function Home() {
 
       {/* ── How it works ───────────────────────────────────── */}
       <Card>
-        <SectionTitle sub="From raw public data to a single acquisition score" right={<Link href="/about" className="text-xs font-semibold text-gold-deep hover:underline">Full methodology →</Link>}>
+        <SectionTitle sub="From raw public data to a single acquisition score" right={<Link href="/student-housing/about" className="text-xs font-semibold text-gold-deep hover:underline">Full methodology →</Link>}>
           How Campus Capital works
         </SectionTitle>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -200,7 +248,7 @@ export default function Home() {
       {/* ── Ranked preview ─────────────────────────────────── */}
       {!loading && !error && (
         <Card>
-          <SectionTitle sub="Ranked by live acquisition score" right={<Link href="/markets" className="text-xs font-semibold text-gold-deep hover:underline">All markets →</Link>}>
+          <SectionTitle sub="Ranked by live acquisition score" right={<Link href="/student-housing/markets" className="text-xs font-semibold text-gold-deep hover:underline">All markets →</Link>}>
             Conviction leaderboard
           </SectionTitle>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -229,7 +277,7 @@ export default function Home() {
             Built to look and behave like a real commercial real-estate acquisitions desk. Every number is live or transparently modeled. Nothing here is investment advice.
           </div>
         </div>
-        <Link href="/about" className="px-5 h-10 inline-flex items-center rounded-full text-sm font-semibold text-white shrink-0" style={{ background: "var(--gold)" }}>
+        <Link href="/student-housing/about" className="px-5 h-10 inline-flex items-center rounded-full text-sm font-semibold text-white shrink-0" style={{ background: "var(--gold)" }}>
           About this build
         </Link>
       </Card>

@@ -6,6 +6,10 @@ import { CITIES, flagshipCity } from "@/lib/dev/cities";
 import { Card, SectionTitle, Stat, StateBlock } from "@/components/dev/ui";
 import { TrendBars } from "@/components/dev/charts";
 import { MarketLeaderboard, type LeaderRow } from "@/components/dev/MarketLeaderboard";
+import { SectorPlayers, SectorNews, type PlayerRow } from "@/components/dev/SectorIntel";
+import { sectorPlayers } from "@/lib/dev/sectors";
+import { fetchFilings } from "@/lib/dev/live/edgar";
+import { fetchNews } from "@/lib/live/news";
 import { fmtNum } from "@/lib/dev/format";
 
 export const revalidate = 43200;
@@ -146,12 +150,34 @@ export default async function SectorPage({ params }: { params: Promise<{ sector:
   const def = SECTORS[sector];
   if (!def) notFound();
 
+  // ── Specialized live intel shared by every asset class: the major public
+  //    operators (with their latest SEC filings) and a sector-tuned news feed.
+  const players = sectorPlayers(sector);
+  const [articles, playerRows] = await Promise.all([
+    players ? fetchNews(players.newsQuery, 8) : Promise.resolve([]),
+    players
+      ? Promise.all(
+          players.companies.map(
+            async (c): Promise<PlayerRow> => ({ company: c, filings: await fetchFilings(c.cik, 4) }),
+          ),
+        )
+      : Promise.resolve([] as PlayerRow[]),
+  ]);
+  const intel = players ? (
+    <>
+      <SectorPlayers rows={playerRows} intro={players.playersIntro} accent={def.color} />
+      <SectorNews articles={articles} label={def.label} />
+    </>
+  ) : null;
+
   // ── Commercial sectors: honest context + the live portals that classify them.
   if (def.source === "portal" || def.source === "program") {
     const liveCities = CITIES.filter((c) => c.socrata);
     return (
       <div className="flex flex-col gap-7">
         <Header def={def} />
+
+        {intel}
 
         <Card>
           <SectionTitle sub="Why there's no national number on this page">
@@ -318,6 +344,8 @@ export default async function SectorPage({ params }: { params: Promise<{ sector:
           )}
         </Card>
       </section>
+
+      {intel}
 
       <Card>
         <SectionTitle sub="Census Building Permits Survey">About this asset class</SectionTitle>

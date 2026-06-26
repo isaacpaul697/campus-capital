@@ -96,7 +96,7 @@ export default function AboutPage() {
             ))}
           </div>
           <p className="text-sm text-muted mt-4 leading-relaxed">
-            Every figure is fetched from a live API or transparently modeled from live inputs and labeled "estimated."
+            Every figure is fetched from a live API or transparently modeled from live inputs and labeled &quot;estimated.&quot;
             Rate-limit–safe caching ensures the app stays fast without burning API quotas.
           </p>
         </Card>
@@ -105,7 +105,7 @@ export default function AboutPage() {
           <ul className="text-sm text-ink-soft space-y-2 list-disc pl-4">
             <li><strong className="text-ink">Live</strong>: pulled directly from an external source (Scorecard, Census, BLS, FRED, Google News, OSM).</li>
             <li><strong className="text-ink">Estimated</strong>: modeled from live inputs. Rent growth and occupancy are derived from enrollment growth and admissions selectivity.</li>
-            <li>Every data point on every page carries a provenance tag so you always know what's real and what's modeled.</li>
+            <li>Every data point on every page carries a provenance tag so you always know what&apos;s real and what&apos;s modeled.</li>
           </ul>
         </Card>
       </div>
@@ -116,8 +116,8 @@ export default function AboutPage() {
           <div className="text-sm text-muted">Start with the demand-hotspot map or the ranked leaderboard.</div>
         </div>
         <div className="flex gap-2">
-          <Link href="/map" className="px-5 h-10 inline-flex items-center rounded-full text-sm font-semibold text-white" style={{ background: "var(--gold)" }}>Map</Link>
-          <Link href="/top10" className="px-5 h-10 inline-flex items-center rounded-full text-sm font-semibold border border-line text-ink">Top 10</Link>
+          <Link href="/student-housing/map" className="px-5 h-10 inline-flex items-center rounded-full text-sm font-semibold text-white" style={{ background: "var(--gold)" }}>Map</Link>
+          <Link href="/student-housing/top10" className="px-5 h-10 inline-flex items-center rounded-full text-sm font-semibold border border-line text-ink">Top 10</Link>
         </div>
       </Card>
     </div>

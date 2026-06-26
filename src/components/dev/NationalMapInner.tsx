@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { MapContainer, TileLayer, GeoJSON, CircleMarker, Tooltip } from "react-leaflet";
+import { MapContainer, TileLayer, GeoJSON, CircleMarker, Tooltip, Pane } from "react-leaflet";
 import type { Layer, PathOptions, LeafletMouseEvent } from "leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -131,33 +131,38 @@ export default function NationalMapInner({
         />
         <GeoJSON data={statesGeo} style={(f) => styleFor(f as GeoFeature)} onEachFeature={(f, l) => onEach(f as GeoFeature, l)} />
 
-        {/* Biggest-city markers: click a dot to open that city's development data. */}
-        {cityDots.map((c) => (
-          <CircleMarker
-            key={c.id}
-            center={[c.lat, c.lng]}
-            radius={c.rank === 1 ? 4.5 : 3.5}
-            pathOptions={{
-              color: "#fffefb",
-              weight: 1.5,
-              fillColor: "#d1402e",
-              fillOpacity: 0.95,
-            }}
-            eventHandlers={{
-              click: () => {
-                window.location.href = `/development/city/${c.id}`;
-              },
-              mouseover: (e) => e.target.setRadius(c.rank === 1 ? 6.5 : 5.5),
-              mouseout: (e) => e.target.setRadius(c.rank === 1 ? 4.5 : 3.5),
-            }}
-          >
-            <Tooltip direction="top" offset={[0, -4]} opacity={1}>
-              <span style={{ fontWeight: 600 }}>{c.name}</span>, {c.state}
-              <br />
-              <span style={{ fontSize: "10px", color: "#6d5418" }}>Click for city data →</span>
-            </Tooltip>
-          </CircleMarker>
-        ))}
+        {/* Biggest-city markers live in a dedicated pane above the choropleth so
+            hovering a state (which calls bringToFront on the polygon) can never
+            paint over the dots. Click a dot to open that city's development data. */}
+        <Pane name="city-dots" style={{ zIndex: 640 }}>
+          {cityDots.map((c) => (
+            <CircleMarker
+              key={c.id}
+              center={[c.lat, c.lng]}
+              radius={c.rank === 1 ? 4.5 : 3.5}
+              pane="city-dots"
+              pathOptions={{
+                color: "#fffefb",
+                weight: 1.5,
+                fillColor: "#d1402e",
+                fillOpacity: 0.95,
+              }}
+              eventHandlers={{
+                click: () => {
+                  window.location.href = `/development/city/${c.id}`;
+                },
+                mouseover: (e) => e.target.setRadius(c.rank === 1 ? 6.5 : 5.5),
+                mouseout: (e) => e.target.setRadius(c.rank === 1 ? 4.5 : 3.5),
+              }}
+            >
+              <Tooltip direction="top" offset={[0, -4]} opacity={1}>
+                <span style={{ fontWeight: 600 }}>{c.name}</span>, {c.state}
+                <br />
+                <span style={{ fontSize: "10px", color: "#6d5418" }}>Click for city data →</span>
+              </Tooltip>
+            </CircleMarker>
+          ))}
+        </Pane>
       </MapContainer>
 
       {/* Live breakdown panel — updates on hover, defaults to the national leader. */}
