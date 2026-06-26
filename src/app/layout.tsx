@@ -12,7 +12,7 @@ const fraunces = Fraunces({
   style: ["normal", "italic"],
 });
 
-const SITE_URL = "https://realestateintelligence.vercel.app";
+const SITE_URL = "https://reintelligence.vercel.app";
 const SITE_DESC =
   "Live student-housing acquisitions scoring and new-construction development intelligence in one workspace, built on 100% live public data.";
 
