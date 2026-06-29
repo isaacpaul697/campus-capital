@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LogoMark } from "./LogoMark";
+import { AboutNavLink } from "./AboutTransition";
+import { HomeLink } from "./HomeTransition";
 import { IntegrationsPanel } from "./IntegrationsPanel";
 import { useMobileNav } from "./MobileNav";
 import { CITIES } from "@/lib/dev/cities";
@@ -157,13 +159,13 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <>
       <div className="px-5 pt-6 pb-4">
-        <Link href="/" onClick={onNavigate} className="flex items-center gap-3">
+        <HomeLink onNavigate={onNavigate} className="flex items-center gap-3">
           <LogoMark size={40} />
           <div>
             <div className="font-display text-[16px] font-semibold text-ink leading-none tracking-tight">Real Estate Intelligence</div>
             <div className="text-[11px] mt-1 text-muted">Live public-data analytics</div>
           </div>
-        </Link>
+        </HomeLink>
       </div>
 
       {/* Top-level section navigator: every world Isaac defined, in order. */}
@@ -218,17 +220,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 
         <div className="mb-5">
           <div className="text-[10px] uppercase tracking-[1.4px] font-semibold px-3 pb-2 text-muted-2">Reference</div>
-          <Link href="/about" onClick={onNavigate}
-            className={`relative flex items-center gap-3 px-3 py-2 mb-0.5 rounded-[10px] text-[13.5px] transition-colors ${
-              path === "/about" ? "bg-gold-soft text-ink font-semibold" : "text-ink-soft hover:bg-surface-2 font-medium"
-            }`}>
-            {path === "/about" && <span className="absolute left-0 top-2 bottom-2 w-[3px] rounded-r-full" style={{ background: "var(--gold)" }} />}
-            <svg viewBox="0 0 24 24" width={17} height={17} fill="none" stroke="currentColor" strokeWidth={1.7}
-              strokeLinecap="round" strokeLinejoin="round" style={path === "/about" ? { color: "var(--gold)" } : { opacity: 0.7 }}>
-              <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 8a7 7 0 0 1 14 0" />
-            </svg>
-            About &amp; methodology
-          </Link>
+          <AboutNavLink onNavigate={onNavigate} />
         </div>
       </nav>
 

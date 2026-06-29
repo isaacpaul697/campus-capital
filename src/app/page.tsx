@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { LogoMark } from "@/components/LogoMark";
 import { BuildOverlay } from "@/components/BuildTransition";
+import { useAboutTransition } from "@/components/AboutTransition";
 import { HubHero } from "@/components/HubHero";
 import { ScrollSkylineRail } from "@/components/ScrollSkylineRail";
 import { ScrollProgressBar, ParallaxHero } from "@/components/ScrollFX";
@@ -69,6 +70,7 @@ export default function Hub() {
   const { dark, toggleDark } = useSettings();
   const router = useRouter();
   const [pending, setPending] = useState<string | null>(null);
+  const about = useAboutTransition();
 
   /**
    * Launch a workspace through a ~1s "building being built" interstitial, then
@@ -108,13 +110,6 @@ export default function Hub() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-        <Link href="/about"
-          className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-ink-soft hover:text-ink px-3 py-1.5 rounded-[10px] bg-surface-2 border border-line hover:border-line-strong transition-colors">
-          <svg viewBox="0 0 24 24" width={15} height={15} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-            <circle cx={12} cy={12} r={9} /><path d="M12 16v-4M12 8h.01" />
-          </svg>
-          About
-        </Link>
         <button onClick={toggleDark} aria-label="Toggle theme"
           className="grid place-items-center w-9 h-9 rounded-[10px] bg-surface-2 border border-line text-ink-soft hover:text-ink hover:border-line-strong">
           {dark ? (
@@ -141,6 +136,17 @@ export default function Hub() {
               Every number traces to live public data. Pick a workspace to begin: a national development monitor,
               a per-asset-class deep dive, or the student-housing acquisitions desk.
             </p>
+            <Link href="/about" onClick={about.onClick}
+              className="group mt-5 inline-flex items-center gap-2 text-[13.5px] font-semibold text-ink px-4 py-2.5 rounded-[12px] bg-surface border border-line-strong shadow-[var(--shadow)] hover:border-gold hover:shadow-[var(--shadow-lg)] transition-all">
+              <svg viewBox="0 0 24 24" width={16} height={16} fill="none" stroke="var(--gold-deep)" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <circle cx={12} cy={12} r={9} /><path d="M12 16v-4M12 8h.01" />
+              </svg>
+              How this works: About &amp; methodology
+              <svg viewBox="0 0 24 24" width={15} height={15} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="text-gold-deep group-hover:translate-x-0.5 transition-transform">
+                <path d="M5 12h14M13 6l6 6-6 6" />
+              </svg>
+            </Link>
+            {about.overlay}
           </div>
           <ParallaxHero>
             <HubHero />

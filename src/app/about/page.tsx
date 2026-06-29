@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { LogoMark } from "@/components/LogoMark";
 import { AppBackground } from "@/components/AppBackground";
+import { HomeLink } from "@/components/HomeTransition";
 import { Reveal } from "@/components/Reveal";
 import { useSettings } from "@/lib/settings";
 import { METHODOLOGY } from "@/lib/dev/model";
@@ -70,17 +71,17 @@ export default function AboutPage() {
       <AppBackground />
 
       <header className="h-[60px] flex items-center justify-between px-6 md:px-10 border-b border-line">
-        <Link href="/" className="flex items-center gap-3">
+        <HomeLink className="flex items-center gap-3">
           <LogoMark size={36} />
           <div>
             <div className="font-display text-[17px] font-semibold text-ink leading-none tracking-tight">Real Estate Intelligence</div>
             <div className="text-[11px] mt-1 text-muted">Live public-data analytics</div>
           </div>
-        </Link>
+        </HomeLink>
         <div className="flex items-center gap-2">
-          <Link href="/" className="text-[13px] font-semibold text-ink-soft hover:text-ink px-3 py-1.5 rounded-[10px] hover:bg-surface-2 transition-colors">
+          <HomeLink className="text-[13px] font-semibold text-ink-soft hover:text-ink px-3 py-1.5 rounded-[10px] hover:bg-surface-2 transition-colors">
             ← Home
-          </Link>
+          </HomeLink>
           <button onClick={toggleDark} aria-label="Toggle theme"
             className="grid place-items-center w-9 h-9 rounded-[10px] bg-surface-2 border border-line text-ink-soft hover:text-ink hover:border-line-strong">
             {dark ? (

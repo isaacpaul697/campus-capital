@@ -309,13 +309,17 @@ a, button { transition: color .15s ease, background-color .15s ease, border-colo
 .cc-build-dot { animation: cc-build-dot 1s ease-in-out infinite; }
 @keyframes cc-build-dot { 0%,100% { opacity: .25; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-3px); } }
 
+/* fade + lift each new area-search status line as it swaps in */
+.cc-stage-swap { animation: cc-stage-swap .4s ease-out; }
+@keyframes cc-stage-swap { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
 @media (prefers-reduced-motion: reduce) {
   .cc-hero-build, .cc-hero-lite, .cc-hero-rope, .cc-hero-block, .cc-hero-car,
   .cc-campus-tassel, .cc-campus-spark, .cc-campus-float, .cc-campus-sway, .cc-dev-build,
   .cc-hero-bob, .cc-hero-pulse, .cc-hero-tilt,
   .cc-emb-bob, .cc-emb-toss, .cc-emb-hoist, .cc-emb-rope,
   .cc-crane-trolley, .cc-crane-hoist, .cc-crane-cable, .cc-worker-arm, .cc-window-person,
-  .cc-radar-ping, .cc-radar-pin {
+  .cc-radar-ping, .cc-radar-pin, .cc-stage-swap {
     animation: none !important;
     transform: none !important;
     opacity: 1 !important;
@@ -332,6 +336,63 @@ a, button { transition: color .15s ease, background-color .15s ease, border-colo
   .cc-hero-cars .cc-hero-car:nth-child(3) { transform: translate(250px, 300.5px) !important; }
   .cc-hero-cars .cc-hero-car:nth-child(4) { transform: translate(330px, 300.5px) !important; }
   .cc-hero-cars .cc-hero-car:nth-child(5) { transform: translate(400px, 300.5px) !important; }
+}
+
+/* ---- Theme-toggle ripple (View Transitions API) ----------------------------
+   When the theme flips we run a manual view transition: the incoming theme is
+   revealed with an expanding circular clip from the toggle button, so dark mode
+   "floods in" from where you clicked instead of hard-cutting. We disable the
+   default cross-fade and drive the clip ourselves from the click handler.     */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) { z-index: 1; }
+::view-transition-new(root) { z-index: 9999; }
+
+/* ---- About transition: architect's elevation drawing itself in ------------ */
+.cc-about-overlay { animation: cc-about-fade 0.32s ease-out; }
+@keyframes cc-about-fade { from { opacity: 0; } to { opacity: 1; } }
+
+.cc-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: cc-draw 0.85s ease-in-out forwards;
+}
+@keyframes cc-draw { to { stroke-dashoffset: 0; } }
+
+.cc-draw-fade { opacity: 0; animation: cc-draw-fade 0.5s ease-out forwards; }
+@keyframes cc-draw-fade { to { opacity: 0.9; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .cc-about-overlay { animation: none !important; }
+  .cc-draw { stroke-dashoffset: 0 !important; animation: none !important; }
+  .cc-draw-fade { opacity: 0.9 !important; animation: none !important; }
+}
+
+/* ---- Home transition: skyline rising while the frame pulls back ----------- */
+.cc-home-overlay { animation: cc-about-fade 0.32s ease-out; }
+
+/* gentle pull-back: start slightly zoomed in, settle to full frame */
+.cc-home-zoom { animation: cc-home-zoom 1.5s cubic-bezier(0.22, 1, 0.36, 1) forwards; transform-origin: 50% 84%; }
+@keyframes cc-home-zoom {
+  from { transform: scale(1.12); opacity: 0.85; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* each tower grows upward from the ground line */
+.cc-home-bld { transform: scaleY(0); animation: cc-home-bld 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+@keyframes cc-home-bld { to { transform: scaleY(1); } }
+
+.cc-home-star { opacity: 0; animation: cc-home-star 0.6s ease-out forwards; }
+@keyframes cc-home-star { 0% { opacity: 0; } 60% { opacity: 0.9; } 100% { opacity: 0.55; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .cc-home-overlay { animation: none !important; }
+  .cc-home-zoom { transform: none !important; opacity: 1 !important; animation: none !important; }
+  .cc-home-bld { transform: scaleY(1) !important; animation: none !important; }
+  .cc-home-star { opacity: 0.55 !important; animation: none !important; }
 }
 
 @media print {

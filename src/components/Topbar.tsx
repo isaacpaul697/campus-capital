@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import { flushSync } from "react-dom";
 import { useSettings } from "@/lib/settings";
 import { useLiveMarkets } from "@/lib/live/provider";
 import { useMobileNav } from "./MobileNav";
@@ -52,11 +53,53 @@ function crumbsFor(path: string): { section: string; leaf: string; housing: bool
   return { section: "National overview", leaf: "National Overview", housing: false };
 }
 
+type DocumentWithVT = Document & {
+  startViewTransition?: (cb: () => void) => { ready: Promise<void> };
+};
+
 export function Topbar() {
   const path = usePathname();
   const { dark, toggleDark } = useSettings();
   const { setOpen } = useMobileNav();
   const { section, leaf, housing } = crumbsFor(path);
+
+  /**
+   * Flip the theme with a circular reveal that expands from the toggle button,
+   * so the new theme "floods in" from where you clicked. Uses the View
+   * Transitions API where available; reduced-motion users and browsers without
+   * it (e.g. Firefox) just get an instant toggle.
+   */
+  function handleThemeToggle(e: React.MouseEvent<HTMLButtonElement>) {
+    const docVT = document as DocumentWithVT;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce || typeof docVT.startViewTransition !== "function") {
+      toggleDark();
+      return;
+    }
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+    const endR = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+    const next = !dark;
+    const transition = docVT.startViewTransition(() => {
+      // Apply the theme class synchronously inside the transition so the new
+      // snapshot is the destination theme; state update keeps it persisted.
+      flushSync(() => {
+        document.documentElement.classList.toggle("dark", next);
+        toggleDark();
+      });
+    });
+    transition.ready
+      .then(() => {
+        document.documentElement.animate(
+          {
+            clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${endR}px at ${x}px ${y}px)`],
+          },
+          { duration: 480, easing: "ease-in-out", pseudoElement: "::view-transition-new(root)" },
+        );
+      })
+      .catch(() => {});
+  }
 
   return (
     <header className="no-print sticky top-0 z-20 h-[60px] flex items-center justify-between px-4 sm:px-6 md:px-8 border-b border-line backdrop-blur-md"
@@ -76,7 +119,7 @@ export function Topbar() {
       </div>
       <div className="flex items-center gap-3">
         {housing ? <HousingStatus /> : <CitySearch />}
-        <button onClick={toggleDark} aria-label="Toggle theme"
+        <button onClick={handleThemeToggle} aria-label="Toggle theme"
           className="grid place-items-center w-9 h-9 rounded-[10px] bg-surface-2 border border-line text-ink-soft hover:text-ink hover:border-line-strong">
           {dark ? (
             <svg viewBox="0 0 24 24" width={16} height={16} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
