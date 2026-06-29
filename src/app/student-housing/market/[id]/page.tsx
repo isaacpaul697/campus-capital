@@ -67,9 +67,9 @@ export default function MarketDetail() {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <Stat label="Enrollment" value={m.enrollment != null ? fmtNum(m.enrollment) : "n/a"} delta={m.enrollmentGrowth != null ? `+${fmtPct(m.enrollmentGrowth)} / yr` : undefined} tone="good" />
-        <Stat label="Acceptance rate" value={m.acceptanceRate != null ? `${m.acceptanceRate.toFixed(0)}%` : "n/a"} delta="College Scorecard" />
-        <Stat label="Retention rate" value={m.retentionRate != null ? `${m.retentionRate.toFixed(0)}%` : "n/a"} delta="4-yr full-time" tone="good" />
+        <Stat label="Enrollment" value={m.enrollment != null ? fmtNum(m.enrollment) : "n/a"} delta={m.enrollmentGrowth != null ? `+${fmtPct(m.enrollmentGrowth)} / yr` : undefined} tone="good" source="scorecard" />
+        <Stat label="Acceptance rate" value={m.acceptanceRate != null ? `${m.acceptanceRate.toFixed(0)}%` : "n/a"} delta="College Scorecard" source="scorecard" />
+        <Stat label="Retention rate" value={m.retentionRate != null ? `${m.retentionRate.toFixed(0)}%` : "n/a"} delta="4-yr full-time" tone="good" source="scorecard" />
         <Stat label="Housing headlines" value={String(m.newsCount)} delta="recent Google News" tone="info" />
       </div>
 
@@ -84,8 +84,8 @@ export default function MarketDetail() {
 
       {/* Room & board + income context */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-        <Stat label="Room & board (on)" value={m.roomBoardOnCampus != null ? `$${fmtNum(m.roomBoardOnCampus)}/yr` : "n/a"} delta="College Scorecard" />
-        <Stat label="Room & board (off)" value={m.roomBoardOffCampus != null ? `$${fmtNum(m.roomBoardOffCampus)}/yr` : "n/a"} delta="College Scorecard" />
+        <Stat label="Room & board (on)" value={m.roomBoardOnCampus != null ? `$${fmtNum(m.roomBoardOnCampus)}/yr` : "n/a"} delta="College Scorecard" source="scorecard" />
+        <Stat label="Room & board (off)" value={m.roomBoardOffCampus != null ? `$${fmtNum(m.roomBoardOffCampus)}/yr` : "n/a"} delta="College Scorecard" source="scorecard" />
         <Stat label="Median income" value={m.medianIncome != null ? `$${fmtNum(m.medianIncome)}` : "n/a"} delta="Census ACS" />
         <Stat label="Fair market rent (2BR)" value={m.fmrTwoBed != null ? `$${fmtNum(m.fmrTwoBed)}/mo` : "n/a"} delta={m.fmrYear ? `HUD FMR ${m.fmrYear}` : "HUD FMR"} tone="good" />
         <Stat

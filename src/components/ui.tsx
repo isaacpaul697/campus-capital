@@ -5,6 +5,7 @@ import { useState } from "react";
 import type { OpportunityLabel, Provenance } from "@/lib/types";
 import { LABEL_TONE } from "@/lib/scoring";
 import { CountUpText } from "@/components/CountUp";
+import { RateLimitNote } from "@/components/ApiStatusNote";
 
 export type Tone =
   | "vivid"
@@ -102,12 +103,19 @@ export function Stat({
   value,
   delta,
   tone,
+  source,
 }: {
   label: string;
   value: string;
   delta?: string;
   tone?: Tone;
+  /** Live source id (e.g. "scorecard"); when the value is blank and that key is
+   *  rate limited, a note explaining the throttle + reset time is shown. */
+  source?: string;
 }) {
+  // A figure with no digits is blank ("n/a", "-"): only then is a rate-limit
+  // note relevant, so we never paste it next to a real cached number.
+  const blank = !/\d/.test(value);
   return (
     <Card className="flex flex-col gap-1">
       <span className="text-xs text-muted">{label}</span>
@@ -119,6 +127,7 @@ export function Stat({
           {delta}
         </span>
       )}
+      {source && blank && <RateLimitNote source={source} className="mt-1 self-start" />}
     </Card>
   );
 }

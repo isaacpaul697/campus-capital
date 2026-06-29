@@ -156,7 +156,7 @@ export default function Home() {
         <Stat label="Markets tracked" value={loading ? "n/a" : String(scored.length)} delta={`${strongBuys} strong-buy signals`} tone="good" />
         <Stat label="Avg acquisition score" value={loading ? "n/a" : String(avg)} delta="weighted composite" />
         <Stat label="Live headlines (now)" value={loading ? "n/a" : fmtNum(headlines)} delta="across tracked markets" tone="info" />
-        <Stat label="Students in coverage" value={loading ? "n/a" : fmtNum(enrolled)} delta="College Scorecard" />
+        <Stat label="Students in coverage" value={loading ? "n/a" : fmtNum(enrolled)} delta="College Scorecard" source="scorecard" />
       </div>
 
       {/* ── Coverage scale ─────────────────────────────────── */}

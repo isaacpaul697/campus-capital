@@ -42,6 +42,8 @@ interface RateSnapshot {
   limit: number;
   remaining: number;
   at: number; // epoch ms
+  /** When the quota window reopens, if the server told us (epoch ms). */
+  resetAt?: number;
 }
 
 const g = globalThis as unknown as {
@@ -57,7 +59,20 @@ export function recordRateLimit(provider: string, headers: Headers): void {
   const limit = Number(headers.get("x-ratelimit-limit"));
   const remaining = Number(headers.get("x-ratelimit-remaining"));
   if (Number.isFinite(limit) && Number.isFinite(remaining)) {
-    store.set(provider, { limit, remaining, at: Date.now() });
+    // Prefer the server's own reset clock when it sends one. On a 429,
+    // api.data.gov returns Retry-After (seconds until the window reopens);
+    // some gateways also send x-ratelimit-reset (epoch seconds). Either is far
+    // more accurate than assuming the top of the next hour, since a long quota
+    // window can stretch hours past the current hour.
+    let resetAt: number | undefined;
+    const retryAfter = Number(headers.get("retry-after"));
+    const resetEpoch = Number(headers.get("x-ratelimit-reset"));
+    if (Number.isFinite(resetEpoch) && resetEpoch > 1_000_000_000) {
+      resetAt = resetEpoch * 1000;
+    } else if (Number.isFinite(retryAfter) && retryAfter > 0) {
+      resetAt = Date.now() + retryAfter * 1000;
+    }
+    store.set(provider, { limit, remaining, at: Date.now(), resetAt });
   }
 }
 
@@ -113,7 +128,8 @@ export function scorecardRow(snap: RateSnapshot | undefined, usingDemoKey: boole
     remaining: snap.remaining,
     used: Math.max(0, snap.limit - snap.remaining),
     window: "per hour",
-    resetAt: reset,
+    // Use the reset clock the server actually reported when we have it.
+    resetAt: snap.resetAt ? new Date(snap.resetAt).toISOString() : reset,
     status: statusFor(snap.remaining, snap.limit),
     note: usingDemoKey
       ? "Live meter from api.data.gov, currently on the shared DEMO_KEY (low hourly cap, per IP). Add DATA_GOV_API_KEY for 1,000/hour."
