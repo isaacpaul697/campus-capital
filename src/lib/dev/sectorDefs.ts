@@ -172,6 +172,6 @@ export function sectorSubnav(sector: string): SectorSubPage[] {
   const def = SECTORS[sector];
   const pages: SectorSubPage[] = [{ slug: "", name: "Overview" }];
   if (def?.source === "bps") pages.push({ slug: "leaderboards", name: "Leaderboards" });
-  pages.push({ slug: "players", name: "Players & news" });
+  pages.push({ slug: "players", name: "Major players & news" });
   return pages;
 }

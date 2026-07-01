@@ -21,12 +21,13 @@ const HOUSING_CRUMBS: Record<string, string> = {
   notes: "Diligence Notes",
   watchlist: "Saved Apartments",
   settings: "Settings",
+  players: "Major players & news",
 };
 
 const SECTOR_SUB_CRUMBS: Record<string, string> = {
   "": "Overview",
   leaderboards: "Leaderboards",
-  players: "Players & news",
+  players: "Major players & news",
 };
 
 /** Resolve the breadcrumb section + leaf from the pathname alone. */

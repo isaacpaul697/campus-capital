@@ -73,7 +73,7 @@ const HOUSING_GROUPS: Group[] = [
       { href: "/student-housing/apartments", name: "Apartments", icon: "M4 6h16M4 12h16M4 18h16" },
       { href: "/student-housing/top10", name: "Top 10 Markets", icon: "M5 19h4V9H5v10Zm6 0h4V5h-4v14Zm6 0h4v-6h-4v6Z" },
       { href: "/student-housing/top-apartments", name: "Top 10 Apartments", icon: "M3 21h18M9 21V9h6v12M6 21V12h3v9m6 0V12h3v9" },
-      { href: "/student-housing/players", name: "Major Players & Moves", icon: "M16 7a4 4 0 1 0-8 0 4 4 0 0 0 8 0Zm-12 14a8 8 0 0 1 16 0M19 8l1.5 1.5L23 7" },
+      { href: "/student-housing/players", name: "Major players & news", icon: "M16 7a4 4 0 1 0-8 0 4 4 0 0 0 8 0Zm-12 14a8 8 0 0 1 16 0M19 8l1.5 1.5L23 7" },
     ],
   },
   {

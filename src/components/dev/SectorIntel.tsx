@@ -38,7 +38,7 @@ export function SectorPlayers({
       <PlayersActivityGraphic rows={rows} accent={accent} label={label} />
 
       <Card>
-        <SectionTitle sub={intro}>Major players &amp; recent moves</SectionTitle>
+        <SectionTitle sub={intro}>Major players &amp; news</SectionTitle>
         <div className="grid sm:grid-cols-2 gap-3">
           {rows.map(({ company, filings }) => (
             <button
@@ -81,7 +81,7 @@ export function SectorPlayers({
                 )}
               </div>
 
-              <div className="mt-3 text-[11px] font-semibold" style={{ color: accent }}>View profile &amp; moves →</div>
+              <div className="mt-3 text-[11px] font-semibold" style={{ color: accent }}>View profile &amp; news →</div>
             </button>
           ))}
         </div>

@@ -44,7 +44,7 @@ export default async function SectorPlayersPage({ params }: { params: Promise<{ 
         </>
       ) : (
         <Card>
-          <SectionTitle sub="No public-operator roster for this class yet">Players &amp; news</SectionTitle>
+          <SectionTitle sub="No public-operator roster for this class yet">Major players &amp; news</SectionTitle>
           <div className="text-[13px] text-muted leading-relaxed">
             A curated roster of public operators for this asset class isn&apos;t available yet.
           </div>

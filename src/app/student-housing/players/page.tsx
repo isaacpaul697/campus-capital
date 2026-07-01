@@ -28,7 +28,7 @@ export default async function PlayersPage() {
       <section>
         <Link href="/student-housing" className="text-xs text-muted hover:text-ink">← Student housing home</Link>
         <h1 className="font-display text-[32px] md:text-[38px] font-semibold text-ink leading-tight tracking-tight mt-2">
-          Major players &amp; recent moves
+          Major players &amp; news
         </h1>
         <p className="text-[15px] text-ink-soft mt-2 max-w-2xl">
           The public-market firms shaping purpose-built student housing, each with its latest SEC

@@ -198,7 +198,7 @@ export default async function SectorOverviewPage({ params }: { params: Promise<{
           </Link>
           <Link href={`/sector/${sector}/players`}
             className="block bg-surface-2 border border-line rounded-[var(--radius-card)] p-4 hover:border-line-strong transition-colors">
-            <div className="font-display text-[16px] font-semibold text-ink">Players &amp; news →</div>
+            <div className="font-display text-[16px] font-semibold text-ink">Major players &amp; news →</div>
             <div className="text-xs text-muted mt-1">Major public operators, their live SEC filings, and sector headlines.</div>
           </Link>
         </div>
