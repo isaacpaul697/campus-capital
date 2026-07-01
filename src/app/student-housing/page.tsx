@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useScoredMarkets } from "@/lib/compute";
 import { useAllApartments } from "@/lib/live/allApartments";
 import { CampusMap } from "@/components/CampusMap";
-import { CampusHero } from "@/components/CampusHero";
+import { CampusTour } from "@/components/CampusTour";
 import { Card, Stat, LabelChip, SectionTitle, Logo, Spinner, StateBlock, ProvenanceTag } from "@/components/ui";
 import { fmtNum } from "@/lib/scoring";
 import { timeAgo } from "@/lib/live/useMarketDetail";
@@ -90,6 +90,17 @@ export default function Home() {
     scored.filter((m) => coveredIds.has(m.market.id)).map((m) => m.market.state),
   ).size;
 
+  // Regional cut of the coverage, a different lens than the map: how the tracked
+  // university markets split across the four Census regions, with each region's
+  // average live acquisition score. Real region tags from the university dataset.
+  const REGION_ORDER = ["South", "Midwest", "West", "Northeast"] as const;
+  const regionStats = REGION_ORDER.map((region) => {
+    const list = scored.filter((m) => m.market.region === region);
+    const avgScore = list.length ? Math.round(list.reduce((s, m) => s + m.score.score, 0) / list.length) : 0;
+    return { region, count: list.length, avgScore };
+  }).sort((a, b) => b.count - a.count);
+  const maxRegionCount = Math.max(1, ...regionStats.map((r) => r.count));
+
   return (
     <div className="flex flex-col gap-8 cc-fade">
       {/* ── Hero ───────────────────────────────────────────── */}
@@ -100,8 +111,7 @@ export default function Home() {
           style={{ background: "radial-gradient(900px 360px at 88% -10%, var(--gold-soft) 0%, transparent 60%)" }}
         />
         <div className="relative p-8 md:p-12">
-          <div className="lg:grid lg:grid-cols-[1fr_340px] lg:gap-10 lg:items-center">
-            <div>
+          <div>
           <div className="flex flex-wrap items-center gap-2 mb-5">
             <span className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-gold-deep bg-gold-soft rounded-full px-3 py-1">
               <span className="relative flex w-2 h-2">
@@ -109,9 +119,6 @@ export default function Home() {
                 <span className="relative inline-flex w-2 h-2 rounded-full bg-good" />
               </span>
               Live data
-            </span>
-            <span className="inline-flex items-center text-[11px] font-semibold uppercase tracking-wider text-muted bg-surface-2 border border-line rounded-full px-3 py-1">
-              Portfolio project
             </span>
           </div>
 
@@ -152,11 +159,46 @@ export default function Home() {
               ))}
             </div>
           </div>
-            </div>
-            <div className="hidden lg:block self-center"><CampusHero /></div>
           </div>
         </div>
       </Card>
+
+      {/* ── Map + feed ─────────────────────────────────────── */}
+      <div className="grid grid-cols-1 xl:grid-cols-[1.6fr_1fr] gap-6">
+        <Card pad={false} className="overflow-hidden">
+          <div className="flex items-center justify-between p-5 pb-3">
+            <SectionTitle sub="Click a campus to zoom in and reveal real nearby apartments">Demand map</SectionTitle>
+          </div>
+          <div className="px-3 pb-3">
+            {loading ? <Spinner /> : error ? <StateBlock title="Live feed unavailable" note="Could not reach the data source. Try refreshing." /> : (
+              <CampusMap markets={scored} height={460} />
+            )}
+          </div>
+        </Card>
+
+        <Card className="flex flex-col">
+          <SectionTitle sub="Real headlines · Google News">Live signal feed</SectionTitle>
+          <div className="flex flex-col divide-y divide-line -mt-1 overflow-y-auto nav-scroll" style={{ maxHeight: 470 }}>
+            {feedLoading ? (
+              <Spinner label="Pulling headlines…" />
+            ) : feed.length === 0 ? (
+              <div className="text-sm text-muted py-6">No recent headlines.</div>
+            ) : (
+              feed.slice(0, 14).map((a, i) => (
+                <a key={i} href={a.link} target="_blank" rel="noopener noreferrer" className="py-3 group">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="w-2 h-2 rounded-full" style={{ background: a.brandColor }} />
+                    <span className="text-[11px] font-semibold text-muted">{a.marketName}</span>
+                    <span className="text-[11px] text-muted-2 ml-auto">{timeAgo(a.published)}</span>
+                  </div>
+                  <div className="text-[13px] text-ink-soft group-hover:text-ink leading-snug">{a.title}</div>
+                  <div className="text-[11px] text-muted-2 mt-0.5">{a.source}</div>
+                </a>
+              ))
+            )}
+          </div>
+        </Card>
+      </div>
 
       {/* ── KPIs ───────────────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -199,39 +241,39 @@ export default function Home() {
         </div>
       </Card>
 
-      {/* ── Map + feed ─────────────────────────────────────── */}
-      <div className="grid grid-cols-1 xl:grid-cols-[1.6fr_1fr] gap-6">
-        <Card pad={false} className="overflow-hidden">
-          <div className="flex items-center justify-between p-5 pb-3">
-            <SectionTitle sub="Click a campus to zoom in and reveal real nearby apartments">Demand map</SectionTitle>
-          </div>
-          <div className="px-3 pb-3">
-            {loading ? <Spinner /> : error ? <StateBlock title="Live feed unavailable" note="Could not reach the data source. Try refreshing." /> : (
-              <CampusMap markets={scored} height={460} />
-            )}
-          </div>
-        </Card>
+      {/* ── Coast-to-coast campus tour + regional cut ─────── */}
+      <div className="grid grid-cols-1 xl:grid-cols-[1.7fr_1fr] gap-6 items-stretch">
+        <CampusTour />
 
         <Card className="flex flex-col">
-          <SectionTitle sub="Real headlines · Google News">Live signal feed</SectionTitle>
-          <div className="flex flex-col divide-y divide-line -mt-1 overflow-y-auto nav-scroll" style={{ maxHeight: 470 }}>
-            {feedLoading ? (
-              <Spinner label="Pulling headlines…" />
-            ) : feed.length === 0 ? (
-              <div className="text-sm text-muted py-6">No recent headlines.</div>
-            ) : (
-              feed.slice(0, 14).map((a, i) => (
-                <a key={i} href={a.link} target="_blank" rel="noopener noreferrer" className="py-3 group">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="w-2 h-2 rounded-full" style={{ background: a.brandColor }} />
-                    <span className="text-[11px] font-semibold text-muted">{a.marketName}</span>
-                    <span className="text-[11px] text-muted-2 ml-auto">{timeAgo(a.published)}</span>
+          <SectionTitle sub="Tracked markets across the four Census regions">
+            Coverage by region
+          </SectionTitle>
+          {loading ? (
+            <Spinner />
+          ) : (
+            <div className="flex flex-col gap-5 mt-1 flex-1 justify-center">
+              {regionStats.map((r) => (
+                <div key={r.region}>
+                  <div className="flex items-baseline justify-between mb-1.5">
+                    <span className="text-[13px] font-semibold text-ink">{r.region}</span>
+                    <span className="text-[12px] text-muted">
+                      <span className="num font-semibold text-ink-soft">{r.count}</span> markets · avg{" "}
+                      <span className="num font-semibold text-ink-soft">{r.avgScore}</span>
+                    </span>
                   </div>
-                  <div className="text-[13px] text-ink-soft group-hover:text-ink leading-snug">{a.title}</div>
-                  <div className="text-[11px] text-muted-2 mt-0.5">{a.source}</div>
-                </a>
-              ))
-            )}
+                  <div className="h-2.5 rounded-full bg-line/60 overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-700"
+                      style={{ width: `${(r.count / maxRegionCount) * 100}%`, background: "var(--gold)" }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          <div className="text-[11px] text-muted-2 mt-5 pt-3 border-t border-line">
+            {loading ? "Loading coverage…" : `${scored.length} markets · avg score is the mean live acquisition score per region`}
           </div>
         </Card>
       </div>
@@ -279,7 +321,7 @@ export default function Home() {
       {/* ── Footer note ────────────────────────────────────── */}
       <Card className="flex items-center justify-between flex-wrap gap-3 bg-surface-2/60">
         <div>
-          <div className="font-display font-semibold text-ink">A portfolio project</div>
+          <div className="font-display font-semibold text-ink">How this was built</div>
           <div className="text-sm text-muted max-w-xl mt-0.5">
             Built to look and behave like a real commercial real-estate acquisitions desk. Every number is live or transparently modeled. Nothing here is investment advice.
           </div>

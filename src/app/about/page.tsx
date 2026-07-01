@@ -5,37 +5,65 @@ import { LogoMark } from "@/components/LogoMark";
 import { AppBackground } from "@/components/AppBackground";
 import { HomeLink } from "@/components/HomeTransition";
 import { Reveal } from "@/components/Reveal";
+import { useAboutLinkTransition } from "@/components/AboutLinkTransition";
+import { AboutHeroVisual } from "@/components/AboutHeroVisual";
 import { useSettings } from "@/lib/settings";
 import { METHODOLOGY } from "@/lib/dev/model";
+import { SECTORS, SECTOR_ORDER, SECTOR_ICON, STUDENT_HOUSING_ICON } from "@/lib/dev/sectorDefs";
 
-/** Two workspaces, described by what they actually hold. */
-const WORKSPACES = [
-  {
-    href: "/student-housing",
-    eyebrow: "Acquisitions IQ",
-    title: "Student Housing",
-    blurb:
-      "An acquisitions desk for purpose-built and off-campus student housing. Screen university markets, size deals, and track the firms moving the sector.",
-    items: [
-      "University-market screening on live enrollment, demand, supply, and rent signals",
-      "A transparent 0 to 100 acquisition score with a print-ready scorecard",
-      "Apartment-level diligence mapped from OpenStreetMap, with one-click auto-underwriting",
-      "Saved-apartment watchlist, diligence notes, and a live major-players + SEC-filings feed",
-    ],
-  },
+/**
+ * The three ways to jump straight into live data: the two interactive maps and
+ * the area search. These sit at the top of the page, right after the data note.
+ */
+const QUICK_LINKS = [
   {
     href: "/national",
-    eyebrow: "Development Intelligence",
-    title: "National & asset classes",
-    blurb:
-      "A national view of where America is building, plus a dedicated tab for every asset class. Explore permit activity, model supply gaps, and profile the developers and operators behind it.",
-    items: [
-      "National and per-state permit activity and trends from the Census Building Permits Survey",
-      "City explorer with a supply-gap model and modeled development economics",
-      "Area search that sweeps OpenStreetMap building footprints for any US city",
-      "Multifamily, industrial, office, retail, single/townhome and affordable tabs with live SEC filings, news, and leaderboards",
-    ],
+    eyebrow: "Live map",
+    title: "National permit map",
+    desc: "A clickable map of all 50 states showing live permit volumes and construction trends from the Census Building Permits Survey. Click any state to drill into its pipeline and top developers.",
+    icon: "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18ZM3 12h18M12 3c2.4 2.6 3.6 6 3.6 9s-1.2 6.4-3.6 9c-2.4-2.6-3.6-6-3.6-9s1.2-6.4 3.6-9Z",
   },
+  {
+    href: "/student-housing/map",
+    eyebrow: "Live map",
+    title: "Student-housing map",
+    desc: "An interactive map of major university markets, each scored 0 to 100 on live enrollment, demand, supply, and rent signals. Click a campus to open its full acquisition read.",
+    icon: STUDENT_HOUSING_ICON,
+  },
+  {
+    href: "/area",
+    eyebrow: "Search",
+    title: "Area search",
+    desc: "Sweep OpenStreetMap building footprints for any US city or address to see what has actually been built on the ground, block by block, then underwrite any parcel.",
+    icon: "M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14ZM21 21l-4.35-4.35",
+  },
+];
+
+/** Every asset class, described by what it holds, with its own tagline. Student
+ *  housing leads the roster as its own dedicated acquisitions workspace. */
+const ASSET_CLASSES = [
+  {
+    href: "/student-housing",
+    label: "Student housing",
+    eyebrow: "Residential · Acquisitions desk",
+    color: "#9a7b2e",
+    icon: STUDENT_HOUSING_ICON,
+    tagline: "Find the next student-housing market before the market does.",
+    blurb:
+      "Purpose-built and off-campus student housing. Screen university markets on live demand and supply, score deals 0 to 100, and auto-underwrite any mapped property.",
+  },
+  ...SECTOR_ORDER.map((slug) => {
+    const s = SECTORS[slug];
+    return {
+      href: `/sector/${slug}`,
+      label: s.label,
+      eyebrow: s.eyebrow,
+      color: s.color,
+      icon: SECTOR_ICON[slug],
+      tagline: `${s.heroLead} ${s.heroPunch}`,
+      blurb: s.blurb,
+    };
+  }),
 ];
 
 /** The student-housing screening pipeline, step by step. */
@@ -66,6 +94,7 @@ const SOURCES = [
 
 export default function AboutPage() {
   const { dark, toggleDark } = useSettings();
+  const { launch, overlay } = useAboutLinkTransition();
   return (
     <div className="min-h-screen flex flex-col relative">
       <AppBackground />
@@ -99,50 +128,31 @@ export default function AboutPage() {
 
       <main className="flex-1 w-full max-w-[1000px] mx-auto px-6 md:px-10 py-14 md:py-18">
         <Reveal>
-          <div className="max-w-[680px]">
-            <div className="text-[12px] font-semibold uppercase tracking-[1.6px] text-gold-deep">About this site</div>
-            <h1 className="font-display text-[32px] md:text-[42px] leading-[1.08] font-semibold text-ink mt-3">
-              What Real Estate Intelligence is, and how every number is built.
-            </h1>
-            <p className="text-[15px] text-ink-soft mt-4 leading-relaxed">
-              Real Estate Intelligence is a research workspace that turns free public data into an
-              acquisitions and development read on US real estate. It pairs a student-housing
-              acquisitions desk with a national development monitor, around a single rule: every figure is
-              either pulled live from a public source or transparently modeled from live inputs and badged
-              as estimated. There are no mock numbers anywhere in the app.
-            </p>
+          <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)] gap-10 lg:gap-12 items-center">
+            <div className="max-w-[680px]">
+              <div className="text-[12px] font-semibold uppercase tracking-[1.6px] text-gold-deep">About this site</div>
+              <h1 className="font-display text-[32px] md:text-[42px] leading-[1.08] font-semibold text-ink mt-3">
+                What Real Estate Intelligence is, and how every number is built.
+              </h1>
+              <p className="text-[15px] text-ink-soft mt-4 leading-relaxed">
+                Real Estate Intelligence is a research workspace that turns free public data into an
+                acquisitions and development read on US real estate. It pairs a student-housing
+                acquisitions desk with a national development monitor, around a single rule: every figure is
+                either pulled live from a public source or transparently modeled from live inputs and badged
+                as estimated. There are no mock numbers anywhere in the app.
+              </p>
+            </div>
+            <div className="rounded-[var(--radius)] bg-surface border border-line p-5 md:p-6 shadow-[var(--shadow)]">
+              <AboutHeroVisual />
+              <div className="text-[11px] text-muted text-center mt-2 leading-relaxed">
+                Live public signals, scored and modeled into a market read.
+              </div>
+            </div>
           </div>
         </Reveal>
 
-        <div className="grid md:grid-cols-2 gap-6 mt-12">
-          {WORKSPACES.map((w, i) => (
-            <Reveal key={w.href} delayMs={i * 120}>
-              <div className="h-full rounded-[var(--radius)] bg-surface border border-line p-6 md:p-7 shadow-[var(--shadow)]">
-                <div className="text-[11px] font-semibold uppercase tracking-[1.2px] text-muted">{w.eyebrow}</div>
-                <div className="font-display text-[22px] font-semibold text-ink leading-tight mt-1">{w.title}</div>
-                <p className="text-[13.5px] text-ink-soft mt-3 leading-relaxed">{w.blurb}</p>
-                <ul className="mt-4 space-y-2">
-                  {w.items.map((it) => (
-                    <li key={it} className="flex items-start gap-2.5 text-[13px] text-ink-soft leading-snug">
-                      <span className="w-1.5 h-1.5 rounded-full shrink-0 mt-1.5" style={{ background: "var(--gold)" }} />
-                      {it}
-                    </li>
-                  ))}
-                </ul>
-                <Link href={w.href}
-                  className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-gold-deep hover:gap-2.5 transition-all">
-                  Open {w.title}
-                  <svg viewBox="0 0 24 24" width={16} height={16} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M5 12h14M13 6l6 6-6 6" />
-                  </svg>
-                </Link>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-
-        <Reveal delayMs={120}>
-          <div className="mt-12 rounded-[var(--radius)] bg-surface border border-line p-6 md:p-7 shadow-[var(--shadow)]">
+        <Reveal delayMs={60}>
+          <div className="mt-10 rounded-[var(--radius)] bg-surface border border-line p-6 md:p-7 shadow-[var(--shadow)]">
             <div className="text-[11px] font-semibold uppercase tracking-[1.2px] text-muted">How the data works</div>
             <h2 className="font-display text-[20px] font-semibold text-ink mt-1">Live first, modeled-and-badged second</h2>
             <p className="text-[13.5px] text-ink-soft mt-3 leading-relaxed max-w-[720px]">
@@ -165,17 +175,95 @@ export default function AboutPage() {
           </div>
         </Reveal>
 
+        <Reveal delayMs={80}>
+          <div className="mt-12">
+            <div className="text-[12px] font-semibold uppercase tracking-[1.6px] text-gold-deep">Jump straight in</div>
+            <h2 className="font-display text-[26px] md:text-[30px] font-semibold text-ink mt-2">Open a live map or search any area</h2>
+            <p className="text-[14px] text-ink-soft mt-3 leading-relaxed max-w-[680px]">
+              Two interactive maps and a footprint search, each built entirely on live public data. Jump
+              straight to whichever one you need.
+            </p>
+            <div className="grid sm:grid-cols-3 gap-4 mt-6">
+              {QUICK_LINKS.map((q) => (
+                <Link key={q.href} href={q.href} onClick={(e) => launch(e, q.href, q.title)}
+                  className="group flex h-full flex-col rounded-[var(--radius)] bg-surface border border-line p-5 md:p-6 shadow-[var(--shadow)] hover:border-gold hover:shadow-[var(--shadow-lg)] transition-all">
+                  <span className="grid place-items-center w-11 h-11 rounded-full shrink-0" style={{ background: "var(--gold-soft)" }}>
+                    <svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke="var(--gold-deep)" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+                      <path d={q.icon} />
+                    </svg>
+                  </span>
+                  <div className="text-[10.5px] font-semibold uppercase tracking-[1.2px] text-muted mt-4">{q.eyebrow}</div>
+                  <div className="font-display text-[18px] font-semibold text-ink leading-tight mt-0.5">{q.title}</div>
+                  <p className="text-[13px] text-ink-soft mt-2 leading-relaxed">{q.desc}</p>
+                  <div className="mt-auto pt-4 inline-flex items-center gap-1.5 text-[13px] font-semibold text-gold-deep group-hover:gap-2.5 transition-all">
+                    Open
+                    <svg viewBox="0 0 24 24" width={15} height={15} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M5 12h14M13 6l6 6-6 6" />
+                    </svg>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </Reveal>
+
+        <Reveal delayMs={120}>
+          <div className="mt-14">
+            <div className="text-[12px] font-semibold uppercase tracking-[1.6px] text-gold-deep">Asset classes</div>
+            <h2 className="font-display text-[26px] md:text-[30px] font-semibold text-ink mt-2">A dedicated deep dive for every asset class</h2>
+            <p className="text-[14px] text-ink-soft mt-3 leading-relaxed max-w-[680px]">
+              Beyond student housing, each asset class has its own workspace: live permit activity, modeled
+              development economics, major public and private players with SEC filings, and a live news feed.
+              Open any class to explore it.
+            </p>
+          </div>
+        </Reveal>
+
+        <div className="grid sm:grid-cols-2 gap-6 mt-6">
+          {ASSET_CLASSES.map((a, i) => (
+            <Reveal key={a.href} delayMs={i * 90}>
+              <Link href={a.href} onClick={(e) => launch(e, a.href, a.label)}
+                className="group flex h-full flex-col rounded-[var(--radius)] bg-surface border border-line p-6 md:p-7 shadow-[var(--shadow)] hover:shadow-[var(--shadow-lg)] hover:border-line-strong transition-all">
+                <div className="flex items-center gap-3">
+                  <span className="grid place-items-center w-10 h-10 rounded-full shrink-0" style={{ background: `color-mix(in srgb, ${a.color} 16%, transparent)` }}>
+                    <svg viewBox="0 0 24 24" width={19} height={19} fill="none" stroke={a.color} strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round">
+                      <path d={a.icon} />
+                    </svg>
+                  </span>
+                  <div>
+                    <div className="text-[10.5px] font-semibold uppercase tracking-[1.2px] text-muted">{a.eyebrow}</div>
+                    <div className="font-display text-[19px] font-semibold text-ink leading-tight">{a.label}</div>
+                  </div>
+                </div>
+                <div className="font-display text-[15px] italic text-gold-deep mt-3.5 leading-snug">{a.tagline}</div>
+                <p className="text-[13px] text-ink-soft mt-2 leading-relaxed">{a.blurb}</p>
+                <div className="mt-auto pt-4 inline-flex items-center gap-1.5 text-[13px] font-semibold text-gold-deep group-hover:gap-2.5 transition-all">
+                  Open {a.label}
+                  <svg viewBox="0 0 24 24" width={15} height={15} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12h14M13 6l6 6-6 6" />
+                  </svg>
+                </div>
+              </Link>
+            </Reveal>
+          ))}
+        </div>
+
         <Reveal delayMs={120}>
           <div className="mt-12">
             <div className="text-[12px] font-semibold uppercase tracking-[1.6px] text-gold-deep">Methodology</div>
             <h2 className="font-display text-[26px] md:text-[30px] font-semibold text-ink mt-2">How each figure is computed</h2>
+            <p className="text-[14px] text-ink-soft mt-3 leading-relaxed max-w-[680px]">
+              Two methodologies power the app. The first, below, is the student-housing screening
+              pipeline that turns live public data into an acquisition score. The second covers the
+              development and underwriting models shared across every asset class.
+            </p>
           </div>
         </Reveal>
 
         <Reveal delayMs={120}>
           <div className="mt-6 rounded-[var(--radius)] bg-surface border border-line p-6 md:p-7 shadow-[var(--shadow)]">
-            <div className="text-[11px] font-semibold uppercase tracking-[1.2px] text-muted">Student-housing screening pipeline</div>
-            <h3 className="font-display text-[18px] font-semibold text-ink mt-1">From raw public data to an acquisition score</h3>
+            <div className="text-[11px] font-semibold uppercase tracking-[1.2px] text-gold-deep">Student housing</div>
+            <h3 className="font-display text-[18px] font-semibold text-ink mt-1">How the student-housing acquisition score is built</h3>
             <div className="grid sm:grid-cols-2 gap-x-8 gap-y-4 mt-4">
               {HOUSING_METHOD.map((m) => (
                 <div key={m.h} className="border-l-2 pl-4" style={{ borderColor: "var(--gold)" }}>
@@ -217,6 +305,8 @@ export default function AboutPage() {
       <footer className="border-t border-line px-6 md:px-10 py-5 text-[12px] text-muted">
         100% live public data · No mock numbers · Figures are live or modeled-and-badged
       </footer>
+
+      {overlay}
     </div>
   );
 }

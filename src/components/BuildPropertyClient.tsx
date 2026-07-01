@@ -3,6 +3,7 @@
 import { useMemo, useRef, useState } from "react";
 import UnderwritingPanel from "@/components/UnderwritingPanel";
 import { BuildPropertyGraphic } from "@/components/BuildPropertyGraphic";
+import { SectorScene } from "@/components/dev/SectorScene";
 import { ProFormaSheet } from "@/components/ProFormaSheet";
 import { Card, ProvenanceTag } from "@/components/ui";
 import { BASE_COST_PER_SQFT, COST_PER_UNIT } from "@/lib/dev/model";
@@ -200,17 +201,22 @@ export function BuildPropertyClient({
   return (
     <div className="cc-fade">
       {/* Header */}
-      <div className="max-w-[680px]">
-        <div className="text-[12px] font-semibold uppercase tracking-[1.6px] text-gold-deep">Underwriting Lab</div>
-        <h1 className="font-display text-[28px] md:text-[34px] leading-[1.1] font-semibold text-ink mt-2">
-          Build a property and model the deal.
-        </h1>
-        <p className="text-[14px] text-ink-soft mt-3 leading-relaxed">
-          Pick an asset class and location, set the basics, and get an instant valuation, income
-          statement, financing, and return profile. Rent, cap rate, expenses and construction cost
-          are predicted from documented assumptions and the live FRED 30-yr rate, then labeled
-          estimated. Adjust any lever on the right to stress-test it.
-        </p>
+      <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,320px)] gap-8 lg:gap-10 items-center">
+        <div className="max-w-[680px]">
+          <div className="text-[12px] font-semibold uppercase tracking-[1.6px] text-gold-deep">Underwriting Lab</div>
+          <h1 className="font-display text-[28px] md:text-[34px] leading-[1.1] font-semibold text-ink mt-2">
+            Build a property and model the deal.
+          </h1>
+          <p className="text-[14px] text-ink-soft mt-3 leading-relaxed">
+            Pick an asset class and location, set the basics, and get an instant valuation, income
+            statement, financing, and return profile. Rent, cap rate, expenses and construction cost
+            are predicted from documented assumptions and the live FRED 30-yr rate, then labeled
+            estimated. Adjust any lever on the right to stress-test it.
+          </p>
+        </div>
+        <div className="hidden lg:block">
+          <SectorScene variant="build" color="var(--gold-deep)" />
+        </div>
       </div>
 
       <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)] gap-6 mt-8 items-start">

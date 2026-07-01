@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { SECTORS, SECTOR_ICON } from "@/lib/dev/sectorDefs";
+import { SECTORS } from "@/lib/dev/sectorDefs";
 import { Card } from "./ui";
-import { SectorHero } from "./SectorHero";
+import { SectorScene, type SceneVariant } from "./SectorScene";
 
 /** Hero header for every asset-class sub-page: a big attention-grabbing headline,
  *  a description, and an animated sector graphic, mirroring the student-housing
@@ -9,7 +9,6 @@ import { SectorHero } from "./SectorHero";
 export function SectorHeader({ sector }: { sector: string }) {
   const def = SECTORS[sector];
   if (!def) return null;
-  const icon = SECTOR_ICON[sector] ?? "";
 
   return (
     <Card pad={false} className="relative overflow-hidden">
@@ -49,7 +48,7 @@ export function SectorHeader({ sector }: { sector: string }) {
           </div>
 
           <div className="hidden lg:block self-center">
-            <SectorHero color={def.color} icon={icon} motion={def.motion} />
+            <SectorScene variant={sector as SceneVariant} color={def.color} />
           </div>
         </div>
       </div>

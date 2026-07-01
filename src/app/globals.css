@@ -317,6 +317,57 @@ a, button { transition: color .15s ease, background-color .15s ease, border-colo
 .cc-bar-grow { transform-origin: left center; animation: cc-bar-grow .55s cubic-bezier(.22,.9,.3,1) both; }
 @keyframes cc-bar-grow { 0% { transform: scaleX(0); opacity: .4; } 100% { transform: scaleX(1); opacity: 1; } }
 
+/* ---- About hero: a warmly-lit tower rising from a skyline ------------------
+   Buildings rise from the baseline on mount, the whole scene breathes with a
+   gentle float, windows twinkle, and a beacon pulses at the crown. */
+.cc-abt-rise { transform-box: fill-box; animation: cc-abt-rise .95s cubic-bezier(.22,.9,.3,1) both; }
+@keyframes cc-abt-rise { 0% { transform: scaleY(0); } 100% { transform: scaleY(1); } }
+.cc-abt-hero { transform-box: fill-box; transform-origin: 50% 100%; animation: cc-abt-float 6s ease-in-out 1s infinite; }
+@keyframes cc-abt-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+.cc-abt-win { opacity: 0; animation: cc-abt-win 3.6s ease-in-out 1s infinite; }
+@keyframes cc-abt-win { 0%,100% { opacity: .3; } 50% { opacity: .95; } }
+.cc-abt-ping { transform-box: fill-box; transform-origin: center; animation: cc-abt-ping 2.6s ease-out 1.2s infinite; }
+@keyframes cc-abt-ping { 0% { transform: scale(.5); opacity: .85; } 100% { transform: scale(2.4); opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .cc-abt-rise, .cc-abt-hero, .cc-abt-win, .cc-abt-ping {
+    animation: none !important; transform: none !important; opacity: .95 !important;
+  }
+}
+
+/* ---- Per-asset-class scenes -----------------------------------------------
+   Class-specific motions used by SectorScene: a truck backing into the dock,
+   an office elevator running its shaft, shoppers strolling the sidewalk, and a
+   crane load bobbing on its cable. Rising/twinkle reuse the cc-abt-* set. */
+.cc-scn-truck { animation: cc-scn-truck 5.5s cubic-bezier(.5,0,.5,1) infinite; }
+@keyframes cc-scn-truck { 0% { transform: translateX(-64px); } 26%,64% { transform: translateX(0); } 88%,100% { transform: translateX(300px); } }
+.cc-scn-lift { transform-box: fill-box; animation: cc-scn-lift 3.4s ease-in-out infinite; }
+@keyframes cc-scn-lift { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-96px); } }
+.cc-scn-walk { animation: cc-scn-walk 6s linear infinite; }
+@keyframes cc-scn-walk { 0% { transform: translateX(-12px); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateX(252px); opacity: 0; } }
+.cc-scn-hoist { transform-box: fill-box; transform-origin: 50% 0; animation: cc-scn-hoist 4s ease-in-out infinite; }
+@keyframes cc-scn-hoist { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .cc-scn-truck, .cc-scn-lift, .cc-scn-walk, .cc-scn-hoist {
+    animation: none !important; transform: none !important; opacity: 1 !important;
+  }
+}
+
+/* ---- Big Ten "coast to coast" campus tour ---------------------------------
+   Each stop the active campus building pops up, a ring pulses under it, and a
+   fresh info card slides in; the route line stays dashed as a travel path. */
+.cc-bt-pop { animation: cc-bt-pop .5s cubic-bezier(.22,1.3,.4,1) both; }
+@keyframes cc-bt-pop { 0% { opacity: 0; transform: translateY(6px) scale(.4); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+.cc-bt-ring { transform-box: fill-box; transform-origin: center; animation: cc-bt-ring 2s ease-out infinite; }
+@keyframes cc-bt-ring { 0% { transform: scale(.5); opacity: .8; } 100% { transform: scale(2.2); opacity: 0; } }
+.cc-bt-card { animation: cc-bt-card .5s cubic-bezier(.22,.9,.3,1) both; }
+@keyframes cc-bt-card { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: translateY(0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .cc-bt-pop, .cc-bt-ring, .cc-bt-card { animation: none !important; opacity: 1 !important; transform: none !important; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .cc-hero-build, .cc-hero-lite, .cc-hero-rope, .cc-hero-block, .cc-hero-car,
   .cc-campus-tassel, .cc-campus-spark, .cc-campus-float, .cc-campus-sway, .cc-dev-build,
@@ -373,6 +424,41 @@ a, button { transition: color .15s ease, background-color .15s ease, border-colo
   .cc-about-overlay { animation: none !important; }
   .cc-draw { stroke-dashoffset: 0 !important; animation: none !important; }
   .cc-draw-fade { opacity: 0.9 !important; animation: none !important; }
+}
+
+/* ---- About-link transition: a packet plotting a route to a pin ------------ */
+.cc-xfer-overlay { animation: cc-about-fade 0.3s ease-out; }
+
+.cc-route-line {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: cc-route-draw 0.7s ease-out forwards;
+}
+@keyframes cc-route-draw { to { stroke-dashoffset: 0; } }
+
+.cc-route-node { transform-box: fill-box; transform-origin: center; animation: cc-route-node 1.2s ease-in-out infinite; }
+@keyframes cc-route-node { 0%, 100% { opacity: 0.55; transform: scale(0.85); } 50% { opacity: 1; transform: scale(1.1); } }
+
+.cc-route-ring { transform-box: fill-box; transform-origin: center; animation: cc-route-ring 1.5s ease-out infinite; }
+@keyframes cc-route-ring { 0% { transform: scale(0.4); opacity: 0.8; } 100% { transform: scale(1.7); opacity: 0; } }
+
+.cc-route-pin {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: cc-route-pin 0.5s cubic-bezier(0.22, 1.2, 0.4, 1) 0.62s forwards;
+}
+@keyframes cc-route-pin {
+  0% { opacity: 0; transform: translateY(-12px) scale(0.6); }
+  55% { opacity: 1; }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cc-xfer-overlay { animation: none !important; }
+  .cc-route-line { stroke-dashoffset: 0 !important; animation: none !important; }
+  .cc-route-node, .cc-route-ring { animation: none !important; }
+  .cc-route-pin { opacity: 1 !important; transform: none !important; animation: none !important; }
 }
 
 /* ---- Home transition: skyline rising while the frame pulls back ----------- */
